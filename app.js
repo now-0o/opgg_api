@@ -8,11 +8,15 @@ app.use(express.json());
 const HttpException = require('./HttpException');
 const asyncHandler = require('./utils/asyncHandler');
 
+const championRouter = require('./routes/champions');
+
 const sequelize = require('./config/database');
 require('./models');
 sequelize.sync({
     alter: true
 })
+
+app.use('/champions', championRouter);
 
 app.use((req, res, next) => {
   res.status(404).send('등록되지 않은 API입니다.');
