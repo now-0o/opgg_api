@@ -6,6 +6,7 @@ const Lane = require('./Lane');
 const Game = require('./Game');
 const ChampGameData = require('./ChampGameData');
 const Rotation = require('./Rotation');
+const SearchHistory  = require('./SearchHistory');
 
 Rank.hasMany(User);
 User.belongsTo(Rank);
@@ -25,19 +26,20 @@ ChampGameData.belongsTo(Lane);
 User.hasMany(ChampGameData);
 ChampGameData.belongsTo(User);
 
-// 첫 번째 참조 관계
 Champion.hasMany(ChampGameData, { as: 'pickChampion', foreignKey: 'pickId' });
 ChampGameData.belongsTo(Champion, { foreignKey: 'pickId' });
 
-// 두 번째 참조 관계
 Champion.hasMany(ChampGameData, { as: 'banChampion', foreignKey: 'banId' });
 ChampGameData.belongsTo(Champion, { foreignKey: 'banId' });
 
 Champion.belongsToMany(Lane, {through : "champion_lane"});
 Lane.belongsToMany(Champion, {through : "champion_lane"});
 
-Champion.belongsToMany(User, {through : "search_history"});
-User.belongsToMany(Champion, {through : "search_history"});
+Champion.hasMany(SearchHistory);
+SearchHistory.belongsTo(Champion);
+
+User.hasMany(SearchHistory);
+SearchHistory.belongsTo(User);
 
 Champion.hasMany(Rotation);
 Rotation.belongsTo(Champion);
@@ -53,5 +55,6 @@ module.exports = {
     Lane,
     Game,
     ChampGameData,
-    Rotation
+    Rotation,
+    SearchHistory 
 }
