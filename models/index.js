@@ -36,6 +36,9 @@ ChampGameData.belongsTo(Champion, { foreignKey: 'banId' });
 Champion.belongsToMany(Lane, {through : "champion_lane"});
 Lane.belongsToMany(Champion, {through : "champion_lane"});
 
+Champion.belongsToMany(User, {through : "search_history"});
+User.belongsToMany(Champion, {through : "search_history"});
+
 Champion.hasMany(Rotation);
 Rotation.belongsTo(Champion);
 
