@@ -115,4 +115,38 @@ router.get('/search', asyncHandler(async (req, res) => {
     res.status(200).json(recentSearch);
 }));
 
+router.post('/rotation', authenticateToken, asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const {championId} = req.body;
+
+  if(!championId){
+    throw new HttpException(400, "챔피언 ID는 필수값 입니다.");
+  }
+
+  const result = await sequelize.transaction(async () => {
+    const userRank = await User.findByPk(userId);
+    const isAdmin = userRank.dataValues.rankId == 2;
+
+    if(!isAdmin){
+      throw new HttpException(403, "로테이션은 관리자만 등록할 수 있습니다.");
+    }
+
+    const foundChampion = await User.findByPk(championId);
+
+    if(!championId){
+      throw new HttpException(400, "존재하지 않는 챔피언입니다.");
+    }
+
+    const settedChampion = await Rotation.create({
+      championId,
+      userId,
+      live : true
+    });
+
+    return settedChampion;
+  });
+
+  res.status(201).json(result);
+}));
+
 module.exports = router;

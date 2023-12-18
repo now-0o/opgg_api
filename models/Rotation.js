@@ -6,6 +6,8 @@ const Rotation = sequelize.define('rotatinos',{
         autoIncrement : true,
         primaryKey : true,
         type : DataTypes.INTEGER
+    }, live : {
+        type: DataTypes.BOOLEAN
     }
 })
 
