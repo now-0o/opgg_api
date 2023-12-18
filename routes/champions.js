@@ -39,8 +39,8 @@ router.get('/search', asyncHandler(async (req, res) => {
     res.status(200).send(searchedChampions);
   }));
 
-  router.get('/search/lane', asyncHandler(async (req, res) => {
-     const { laneId } = req.body;
+  router.get('/search/:lane', asyncHandler(async (req, res) => {
+     const { laneId } = req.params;
 
      if(!laneId){
         throw new HttpException(400, '조회할 라인의 값이 없습니다.');
