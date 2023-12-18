@@ -40,9 +40,9 @@ router.get('/search', asyncHandler(async (req, res) => {
   }));
 
   router.get('/search/:lane', asyncHandler(async (req, res) => {
-     const { laneId } = req.params;
+     const { lane } = req.params;
 
-     if(!laneId){
+     if(!lane){
         throw new HttpException(400, '조회할 라인의 값이 없습니다.');
      }
 
@@ -52,7 +52,7 @@ router.get('/search', asyncHandler(async (req, res) => {
             {
             model: Lane,
             where: {
-                id : laneId
+                id : lane
             },
             attributes: ['lane'], 
             },
