@@ -36,7 +36,17 @@ const authenticateToken = require('../middlewares/authenticateToken');
         SUM(CASE WHEN cg.banId = A.id THEN 1 ELSE 0 END) AS banCount,
         (SUM(CASE WHEN cg.pickId = A.id THEN 1 ELSE 0 END) / ${totalGames[0].totalGames}) * 100 AS pickRate,
         (SUM(CASE WHEN cg.banId = A.id THEN 1 ELSE 0 END) / ${totalGames[0].totalGames}) * 100 AS banRate,
-        (SUM(CASE WHEN cg.pickId = A.id AND cg.result = 'win' THEN 1 ELSE 0 END) / SUM(CASE WHEN cg.pickId = A.id THEN 1 ELSE 0 END)) * 100 AS winRate
+        (SUM(CASE WHEN cg.pickId = A.id AND cg.result = 'win' THEN 1 ELSE 0 END) / SUM(CASE WHEN cg.pickId = A.id THEN 1 ELSE 0 END)) * 100 AS winRate,
+        IF(
+          (SUM(CASE WHEN cg.pickId = A.id THEN 1 ELSE 0 END) / ${totalGames[0].totalGames}) * 100 >= 50,
+          CASE
+            WHEN (SUM(CASE WHEN cg.pickId = A.id AND cg.result = 'win' THEN 1 ELSE 0 END) / SUM(CASE WHEN cg.pickId = A.id THEN 1 ELSE 0 END)) * 100 >= 50 THEN 1
+            WHEN (SUM(CASE WHEN cg.pickId = A.id AND cg.result = 'win' THEN 1 ELSE 0 END) / SUM(CASE WHEN cg.pickId = A.id THEN 1 ELSE 0 END)) * 100 >= 48 THEN 2
+            WHEN (SUM(CASE WHEN cg.pickId = A.id AND cg.result = 'win' THEN 1 ELSE 0 END) / SUM(CASE WHEN cg.pickId = A.id THEN 1 ELSE 0 END)) * 100 >= 46 THEN 3
+            ELSE 4
+          END,
+          'RIP'
+        ) AS tier
       FROM (
         SELECT
           c.id,
