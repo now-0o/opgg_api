@@ -50,7 +50,7 @@ router.post('/', asyncHandler(async(req, res)=>{
         const foundChampion = await Champion.findByPk(championId);
 
         if(!foundChampion){
-            throw new HttpException(400, '존재하지 않는 챔피언 입니다.');
+            throw new HttpException(400, '선택된 챔피언중 존재하지 않는 챔피언이 있습니다.');
         }
     }
 
@@ -58,7 +58,7 @@ router.post('/', asyncHandler(async(req, res)=>{
         const foundChampion = await Champion.findByPk(championId);
 
         if(!foundChampion){
-            throw new HttpException(400, '존재하지 않는 챔피언 입니다.');
+            throw new HttpException(400, '선택된 챔피언중 존재하지 않는 챔피언이 있습니다.');
         }
     }
 
@@ -76,10 +76,10 @@ router.post('/', asyncHandler(async(req, res)=>{
 
         const checkSecondPickFirstBanDuplicateChampion = secondTeamPickChampion.filter(champion => firstTeamBanChampion.includes(champion));
         const hascheckSecondPickFirstBanDuplicateChampion = checkSecondPickFirstBanDuplicateChampion.length > 0;
-        
+
         const isPickBanDuplicate = checkFirstPickFirstBanDuplicateChampion || checkSecondPickFirstBanDuplicateChampion;
 
-        if(isPickBanDuplicate){
+        if(isPickBanDuplicate.length > 0){
             throw new HttpException(400, '금지된 챔피언은 선택된 챔피언과 중복 될 수 없습니다.');
         }
     }
@@ -97,7 +97,7 @@ router.post('/', asyncHandler(async(req, res)=>{
     
         const isPickBanDuplicate = checkFirstPickSecondBanDuplicateChampion || checkSecondPickSecondBanDuplicateChampion;
 
-        if(isPickBanDuplicate){
+        if(isPickBanDuplicate.length > 0){
             throw new HttpException(400, '금지된 챔피언은 선택된 챔피언과 중복 될 수 없습니다.');
         }
     }
@@ -157,7 +157,7 @@ router.post('/', asyncHandler(async(req, res)=>{
         const foundChampion = await Champion.findByPk(championId);
 
         if(!foundChampion){
-            throw new HttpException(400, '존재하지 않는 챔피언 입니다.');
+            throw new HttpException(400, '금지된 챔피언 중 존재하지 않는 챔피언이 있습니다.');
         }
     }
 
@@ -165,9 +165,17 @@ router.post('/', asyncHandler(async(req, res)=>{
         const foundChampion = await Champion.findByPk(championId);
 
         if(!foundChampion){
-            throw new HttpException(400, '존재하지 않는 챔피언 입니다.');
+            throw new HttpException(400, '금지된 챔피언 중 존재하지 않는 챔피언이 있습니다.');
         }
     }
+
+    const result = await sequelize.transaction(async () => {
+        const savedGame = await Game.create();
+
+        return savedGame;
+    });
+  
+    res.status(201).json(result);
 }));
 
 module.exports = router;
