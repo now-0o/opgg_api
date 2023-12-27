@@ -171,6 +171,22 @@ router.post('/', asyncHandler(async(req, res)=>{
         throw new HttpException(400, '양 팀에 최소 한명의 유저가 있어야 합니다.');
     }
 
+    for (let userId of firstTeamUser) {
+        const founduser = await User.findByPk(userId);
+
+        if(!founduser){
+            throw new HttpException(400, '존재하지 않은 유저가 있습니다.');
+        }
+    }
+
+    for (let userId of secondTeamUser) {
+        const founduser = await User.findByPk(userId);
+
+        if(!founduser){
+            throw new HttpException(400, '존재하지 않은 유저가 있습니다.');
+        }
+    }
+
     if(firstTeamUser.length !== firstTeamPickChampion.length || secondTeamUser.length !== secondTeamPickChampion.length){
         throw new HttpException(400, '양 팀의 챔피언 수와 유저 수는 같아야 합니다.');
     }
@@ -211,24 +227,23 @@ router.post('/', asyncHandler(async(req, res)=>{
         const willInsertChampGameDatas = [];
 
         for (let participatedTeam of gameData) {
-            participatedTeam.userIds.forEach((userId)=>{
+            participatedTeam.userIds.forEach((userId, index)=>{
                 const willInsertChampGameData = {};
-                
+
                 willInsertChampGameData.result = participatedTeam.result;
                 willInsertChampGameData.gameId = savedGameId;
-                willInsertChampGameData.laneId = participatedTeam.laneIds[0];
-                willInsertChampGameData.laneId = participatedTeam.laneIds[0];
-                willInsertChampGameData.laneId = participatedTeam.laneIds[0];
+                willInsertChampGameData.laneId = participatedTeam.laneIds[index];
+                willInsertChampGameData.pickId = participatedTeam.pickIds[index];
+                willInsertChampGameData.banId = participatedTeam.banIds[index] !== "" ? Number(participatedTeam.banIds[index]) : null;
+                willInsertChampGameData.userId = participatedTeam.userIds[index];
+
+                willInsertChampGameDatas.push(willInsertChampGameData);
             });
         }
 
-        const savedChampGameData = await ChampGameData.create({
-            userId: userId,
-            championId: championId,
-            createdAt: savedDatetime,
-        })
+        const createdChampGameData = await ChampGameData.bulkCreate(willInsertChampGameDatas);
 
-        return savedGame;
+        return createdChampGameData;
     });
   
     res.status(201).json(result);
