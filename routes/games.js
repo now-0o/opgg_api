@@ -65,67 +65,103 @@ router.post('/', asyncHandler(async(req, res)=>{
     const firstTeamBanChampion = gameData[0].banIds;
     const secondTeamBanChampion = gameData[1].banIds;
 
-    if(firstTeamBanChampion){
-        const isfirstTeamBanChampionDuplicate  = firstTeamBanChampion.length !== new Set(firstTeamBanChampion).size;
-        if(isfirstTeamBanChampionDuplicate){
-            throw new HttpException(400, '한 팀에 중복된 금지 챔피언이 있을 수 없습니다.');
-        }
-
-        const checkFirstPickFirstBanDuplicateChampion = firstTeamPickChampion.filter(champion => firstTeamBanChampion.includes(champion));
-        const hascheckFirstPickFirstBanDuplicateChampion = checkFirstPickFirstBanDuplicateChampion.length > 0;
-
-        const checkSecondPickFirstBanDuplicateChampion = secondTeamPickChampion.filter(champion => firstTeamBanChampion.includes(champion));
-        const hascheckSecondPickFirstBanDuplicateChampion = checkSecondPickFirstBanDuplicateChampion.length > 0;
-
-        const isPickBanDuplicate = checkFirstPickFirstBanDuplicateChampion || checkSecondPickFirstBanDuplicateChampion;
-
-        if(isPickBanDuplicate.length > 0){
-            throw new HttpException(400, '금지된 챔피언은 선택된 챔피언과 중복 될 수 없습니다.');
-        }
+    if(!firstTeamBanChampion||!secondTeamBanChampion){
+        throw new HttpException(400, '금지 챔피언의 데이터가 없습니다.');
     }
-    if(secondTeamBanChampion){
-        const isSecondTeamBanChampionDuplicate  = secondTeamBanChampion.length !== new Set(secondTeamBanChampion).size;
-        if(isSecondTeamBanChampionDuplicate){
-            throw new HttpException(400, '한 팀에 중복된 금지 챔피언이 있을 수 없습니다.');
-        }
 
-        const checkFirstPickSecondBanDuplicateChampion = firstTeamPickChampion.filter(champion => secondTeamBanChampion.includes(champion));
-        const hascheckFirstPickSecondBanDuplicateChampion = checkFirstPickSecondBanDuplicateChampion.length > 0;
-    
-        const checkSecondPickSecondBanDuplicateChampion = secondTeamPickChampion.filter(champion => secondTeamBanChampion.includes(champion));
-        const hascheckSecondPickSecondBanDuplicateChampion = checkSecondPickSecondBanDuplicateChampion.length > 0;
-    
-        const isPickBanDuplicate = checkFirstPickSecondBanDuplicateChampion || checkSecondPickSecondBanDuplicateChampion;
 
-        if(isPickBanDuplicate.length > 0){
-            throw new HttpException(400, '금지된 챔피언은 선택된 챔피언과 중복 될 수 없습니다.');
+    let isBanChampionDuplicate = false;
+    const appearedFristTeamBanChampions = {}; // 첫번째 팀 금지 챔피언 중복 체크용 배열
+    const appearedSecondTeamBanChampions = {}; // 두번째 팀 금지 챔피언 중복 체크용 배열
+
+    for (const fristTeamBanChampId of firstTeamBanChampion) {
+        if (fristTeamBanChampId !== "") {
+            if (appearedFristTeamBanChampions[fristTeamBanChampId]) {
+                isBanChampionDuplicate = true;
+                break;
+            }
+            appearedFristTeamBanChampions[fristTeamBanChampId] = true;
         }
     }
 
-    if(firstTeamBanChampion&&secondTeamBanChampion){
-        if(firstTeamPickChampion.length < firstTeamBanChampion.length || secondTeamPickChampion.length < secondTeamBanChampion.length){
-            throw new HttpException(400, '양 팀의 챔피언 수보다 금지 챔피언 수가 많을 수 없습니다.');
+    for (const secondTeamBanChampId of secondTeamBanChampion) {
+        if (secondTeamBanChampId !== "") {
+            if (appearedSecondTeamBanChampions[secondTeamBanChampId]) {
+                isBanChampionDuplicate = true;
+                break;
+            }
+            appearedSecondTeamBanChampions[secondTeamBanChampId] = true;
         }
+    }
 
-        if(firstTeamBanChampion.length > 5 || secondTeamBanChampion.length > 5){
-            throw new HttpException(400, '양 팀의 금지된 챔피언은 최대 다섯명 입니다.');
-        }
-    }else if(firstTeamBanChampion&&!secondTeamBanChampion){
-        if(firstTeamPickChampion.length < firstTeamBanChampion.length){
-            throw new HttpException(400, '양 팀의 챔피언 수보다 금지 챔피언 수가 많을 수 없습니다.');
-        }
+    if(isBanChampionDuplicate){
+        throw new HttpException(400, '한팀에 중복된 금지된 챔피언(빈 값 제외)이 나올 수 없습니다. ');
+    }
 
-        if(firstTeamBanChampion.length > 5){
-            throw new HttpException(400, '양 팀의 금지된 챔피언은 최대 다섯명 입니다.');
-        }
-    }else if(!firstTeamBanChampion&&secondTeamBanChampion){
-        if(secondTeamPickChampion.length < secondTeamBanChampion.length){
-            throw new HttpException(400, '양 팀의 챔피언 수보다 금지 챔피언 수가 많을 수 없습니다.');
-        }
+    const checkFirstPickFirstBanDuplicateChampion = firstTeamPickChampion.filter(champion => firstTeamBanChampion.includes(champion));
+    const hascheckFirstPickFirstBanDuplicateChampion = checkFirstPickFirstBanDuplicateChampion.length > 0;
 
-        if(secondTeamBanChampion.length > 5){
-            throw new HttpException(400, '양 팀의 금지된 챔피언은 최대 다섯명 입니다.');
+    const checkSecondPickFirstBanDuplicateChampion = secondTeamPickChampion.filter(champion => firstTeamBanChampion.includes(champion));
+    const hascheckSecondPickFirstBanDuplicateChampion = checkSecondPickFirstBanDuplicateChampion.length > 0;
+
+    const checkFirstPickSecondBanDuplicateChampion = firstTeamPickChampion.filter(champion => secondTeamBanChampion.includes(champion));
+    const hascheckFirstPickSecondBanDuplicateChampion = checkFirstPickSecondBanDuplicateChampion.length > 0;
+
+    const checkSecondPickSecondBanDuplicateChampion = secondTeamPickChampion.filter(champion => secondTeamBanChampion.includes(champion));
+    const hascheckSecondPickSecondBanDuplicateChampion = checkSecondPickSecondBanDuplicateChampion.length > 0;
+
+    const isPickBanDuplicate = hascheckFirstPickFirstBanDuplicateChampion || hascheckSecondPickFirstBanDuplicateChampion || hascheckFirstPickSecondBanDuplicateChampion || hascheckSecondPickSecondBanDuplicateChampion;
+
+    if(isPickBanDuplicate){
+        throw new HttpException(400, '금지된 챔피언은 선택된 챔피언과 중복 될 수 없습니다.');
+    }
+
+
+    if(firstTeamPickChampion.length !== firstTeamBanChampion.length){
+        throw new HttpException(400, '양 팀의 선택 챔피언의 수와 금지 챔피언(빈값 포함)의 수는 같아야합니다.');
+    }
+
+    if(secondTeamPickChampion.length !== secondTeamBanChampion.length){
+        throw new HttpException(400, '양 팀의 선택 챔피언의 수와 금지 챔피언(빈값 포함)의 수는 같아야합니다.');
+    }
+
+
+
+    const firstTeamLane = gameData[0].laneIds; // 첫번째 팀 챔피언들의 라인 데이터
+    const secondTeamLane = gameData[1].laneIds; // 두번째 팀 챔피언들의 라인 데이터
+
+    if(!firstTeamLane||!secondTeamLane){
+        throw new HttpException(400, '양 팀의 선택 챔피언의 라인 데이터가 있어야합니다.');
+    }
+
+    if(firstTeamPickChampion.length !== firstTeamLane.length || secondTeamPickChampion.length !== secondTeamLane.length){
+        throw new HttpException(400, '양 팀읜 선택 챔피언의 수와 라인 데이터의 수는 같아야 합니다.');
+    }
+
+    for (let laneId of firstTeamLane) {
+        const foundLane = await Champion.findByPk(laneId);
+
+        if(!foundLane){
+            throw new HttpException(400, '존재하지 않은 라인 데이터가 있습니다.');
         }
+    }
+
+    for (let laneId of secondTeamLane) {
+        const foundLane = await Champion.findByPk(laneId);
+
+        if(!foundLane){
+            throw new HttpException(400, '존재하지 않은 라인 데이터가 있습니다.');
+        }
+    }
+
+    const isfirstTeamLaneDuplicate  = firstTeamLane.length !== new Set(firstTeamLane).size;
+    if(isfirstTeamLaneDuplicate){
+        throw new HttpException(400, '한 팀에 중복된 라인 데이터는 있을 수 없습니다.');
+    }
+
+    const isSecondTeamLaneDuplicate  = secondTeamLane.length !== new Set(secondTeamLane).size;
+    if(isSecondTeamLaneDuplicate){
+        throw new HttpException(400, '한 팀에 중복된 라인 데이터는 있을 수 없습니다.');
     }
 
     const firstTeamUser = gameData[0].userIds;
@@ -171,6 +207,20 @@ router.post('/', asyncHandler(async(req, res)=>{
 
     const result = await sequelize.transaction(async () => {
         const savedGame = await Game.create();
+        const savedGameId = savedGame.dataValues.id;
+        const willInsertChampGameDatas = [];
+
+        for (let participatedTeam of gameData) {
+            participatedTeam.userIds.forEach((userId)=>{
+                const willInsertChampGameData = {};
+                
+                willInsertChampGameData.result = participatedTeam.result;
+                willInsertChampGameData.gameId = savedGameId;
+                willInsertChampGameData.laneId = participatedTeam.laneIds[0];
+                willInsertChampGameData.laneId = participatedTeam.laneIds[0];
+                willInsertChampGameData.laneId = participatedTeam.laneIds[0];
+            });
+        }
 
         const savedChampGameData = await ChampGameData.create({
             userId: userId,
