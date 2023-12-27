@@ -10,12 +10,12 @@ const authenticateToken = require('../middlewares/authenticateToken');
   router.get('/', asyncHandler(async (req, res) => {
       const searchedChampions = await Champion.findAll({
           attributes: ['id', 'name', 'image']
-      });
+      }); // 로테이션 정보 추가하기
 
       res.status(200).send(searchedChampions);
   }));
 
-  router.get('/search/lane/rank/:lane', asyncHandler(async (req, res) => {
+  router.get('/search/lane/rank/:lane', asyncHandler(async (req, res) => { // restful 한 api로 고민해보기
     const { lane } = req.params;
 
     if(!lane){
@@ -27,6 +27,7 @@ const authenticateToken = require('../middlewares/authenticateToken');
       raw: true,
     }); // totalGames = [{totalGames : 2}]
     
+    // 가독성을 신경써보려 노력해서 수정하기
     const result = await sequelize.query(`
       SELECT
         A.id,
@@ -70,6 +71,7 @@ const authenticateToken = require('../middlewares/authenticateToken');
     res.status(200).send(result);
   }));
 
+  // rest api 변경 :laneId
   router.get('/search/lane/:lane', asyncHandler(async (req, res) => {
     const { lane } = req.params;
 
@@ -98,7 +100,7 @@ const authenticateToken = require('../middlewares/authenticateToken');
    }));
 
   router.get('/search', asyncHandler(async (req, res) => {
-    // 비구조화할당 
+    // name에 대한 정보로 표현
     const {champion} = req.query;
     
     if(!champion){
@@ -120,7 +122,7 @@ const authenticateToken = require('../middlewares/authenticateToken');
   
     res.status(200).send(searchedChampions);
   }));
-
+  // 검색 챔피언 정보 조회 + 로그인한다면? 최근 검색에 저장하도록 
   router.post('/save-recent-search', authenticateToken, asyncHandler(async (req, res) => {
     const userId = req.user.id;
     const {championId} = req.body;
@@ -150,6 +152,7 @@ const authenticateToken = require('../middlewares/authenticateToken');
     res.status(201).json(result);
   }));
 
+  // order by
   router.get('/get-recent-search', authenticateToken, asyncHandler(async (req, res) => {
     const userId = req.user.id;
 
@@ -170,6 +173,7 @@ const authenticateToken = require('../middlewares/authenticateToken');
     res.status(200).json(recentSearch);
 }));
 
+// 관리자 권한을 체크하는 미들웨어 필요
 router.post('/rotation', authenticateToken, asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const {championId} = req.body;
