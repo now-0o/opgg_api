@@ -172,6 +172,12 @@ router.post('/', asyncHandler(async(req, res)=>{
     const result = await sequelize.transaction(async () => {
         const savedGame = await Game.create();
 
+        const savedChampGameData = await ChampGameData.create({
+            userId: userId,
+            championId: championId,
+            createdAt: savedDatetime,
+        })
+
         return savedGame;
     });
   
