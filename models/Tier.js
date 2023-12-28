@@ -6,7 +6,7 @@ const Tier = sequelize.define('tiers',{
         autoIncrement : true,
         primaryKey : true,
         type : DataTypes.INTEGER
-    }, tier : {
+    }, name : {
         type : DataTypes.STRING
     }
 })
