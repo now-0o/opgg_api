@@ -17,12 +17,12 @@ router.post('/', asyncHandler(async(req, res)=>{
         throw new HttpException(400, '두팀의 정보가 모두 들어있어야 합니다.');
     }
 
-    if(gameData[0].result === gameData[1].result){
+    if(gameData[0].win_or_lose === gameData[1].win_or_lose){
         throw new HttpException(400, '두팀의 승패는 다른 값이여야 합니다.');
     }
 
-    const fristTeamResultValueCheck = gameData[0].result === "win" || gameData[0].result === "lose";
-    const secondTeamResultValueCheck = gameData[1].result === "win" || gameData[1].result === "lose";
+    const fristTeamResultValueCheck = gameData[0].win_or_lose === "win" || gameData[0].win_or_lose === "lose";
+    const secondTeamResultValueCheck = gameData[1].win_or_lose === "win" || gameData[1].win_or_lose === "lose";
 
     if(!fristTeamResultValueCheck||!secondTeamResultValueCheck){
         throw new HttpException(400, '결과값은 win 또는 lose 여야 합니다.');
@@ -230,7 +230,7 @@ router.post('/', asyncHandler(async(req, res)=>{
             participatedTeam.userIds.forEach((userId, index)=>{
                 const willInsertChampGameData = {};
 
-                willInsertChampGameData.result = participatedTeam.result;
+                willInsertChampGameData.win_or_lose = participatedTeam.win_or_lose;
                 willInsertChampGameData.gameId = savedGameId;
                 willInsertChampGameData.laneId = participatedTeam.laneIds[index];
                 willInsertChampGameData.pickId = participatedTeam.pickIds[index];

@@ -6,7 +6,7 @@ const Lane = sequelize.define('lanes',{
         autoIncrement : true,
         primaryKey : true,
         type : DataTypes.INTEGER
-    }, lane : { // name이 더 자연스러움
+    }, name : { // name이 더 자연스러움
         type : DataTypes.STRING
     }
 })

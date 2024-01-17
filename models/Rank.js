@@ -6,7 +6,7 @@ const Rank = sequelize.define('ranks',{
         autoIncrement : true,
         primaryKey : true,
         type : DataTypes.INTEGER
-    }, rank : {
+    }, name : {
         type : DataTypes.STRING
     }
 })
